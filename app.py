@@ -1,11 +1,19 @@
+import os
 import streamlit as st
 from openai import OpenAI
-import streamlit as st
-from openai import OpenAI
+from dotenv import load_dotenv
 
-# Get the API key from Streamlit secrets
-api_key = st.secrets["OPENAI_API_KEY"]
-client = OpenAI(api_key=api_key)
+load_dotenv()
+api_key = os.getenv("GROQ_API_KEY")
+
+if not api_key:
+    st.error("GROQ_API_KEY not found. Check your .env file.")
+    st.stop()
+
+client = OpenAI(
+    api_key=api_key,
+    base_url="https://api.groq.com/openai/v1"
+)
 
 
 # ------------------ Page Config ------------------
@@ -196,12 +204,17 @@ if user_input:
         message_placeholder = st.empty()
         message_placeholder.markdown("_HeartHaven is reflecting… 💭_")
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=st.session_state.messages
-        )
+        try:
+            response = client.chat.completions.create(
+                model="openai/gpt-oss-120b",
+                messages=st.session_state.messages
+            )
+            ai_reply = response.choices[0].message.content.strip()
+        except Exception as e:
+            print("API ERROR:", repr(e))
+            st.error(f"Debug: {e}")
+            ai_reply = "I'm having trouble connecting right now. Please try again in a moment 💜"
 
-        ai_reply = response.choices[0].message.content.strip()
         message_placeholder.markdown(ai_reply)
 
     st.session_state.messages.append({"role": "assistant", "content": ai_reply})
