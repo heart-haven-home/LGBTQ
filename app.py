@@ -3,19 +3,28 @@ import streamlit as st
 from openai import OpenAI
 from dotenv import load_dotenv
 
+# Load local .env if it exists (for local testing)
 load_dotenv()
-api_key = os.getenv("GROQ_API_KEY")
+
+# Safely fetch GROQ_API_KEY from Streamlit Cloud Secrets or local environment
+api_key = None
+try:
+    if "GROQ_API_KEY" in st.secrets:
+        api_key = st.secrets["GROQ_API_KEY"]
+except Exception:
+    pass
 
 if not api_key:
-    st.error("GROQ_API_KEY not found. Check your .env file.")
+    api_key = os.getenv("GROQ_API_KEY")
+
+if not api_key:
+    st.error("GROQ_API_KEY not found. Please add it to Streamlit Secrets or your .env file.")
     st.stop()
 
 client = OpenAI(
     api_key=api_key,
     base_url="https://api.groq.com/openai/v1"
 )
-
-
 # ------------------ Page Config ------------------
 st.set_page_config(
     page_title="HeartHaven 🌸",
