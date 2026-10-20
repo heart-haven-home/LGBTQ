@@ -1,7 +1,20 @@
+# Environments and secrets
+.env
+.envrc
+.venv/
 venv/
+env/
+ENV/
+.streamlit/secrets.toml
+
+# Python
 __pycache__/
 *.pyc
-.env
-.streamlit/secrets.toml
+
+# Local files
 chatlog_*.json
 .DS_Store
+
+# IDEs
+.idea/
+.vscode/
